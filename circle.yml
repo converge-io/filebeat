@@ -2,7 +2,7 @@
 
 machine:
   pre:
-    - go get -d -u github.com/elastic/beats
+    - go get -d -u github.com/elastic/beats/filebeat
   environment:
     REPO_PATH: "github.com/elastic/beats"
     BUILD_PATH: "github.com/elastic/beats/filebeat"
