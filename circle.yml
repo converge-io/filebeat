@@ -1,14 +1,16 @@
 ---
 
 machine:
-  pre:
-    - go get -d -u github.com/elastic/beats/filebeat
   environment:
     REPO_PATH: "github.com/elastic/beats"
     BUILD_PATH: "github.com/elastic/beats/filebeat"
-    LOCAL_PATH: "$(go list -f '{{ .Dir }}' $BUILD_PATH)"
+    FILEBEAT_VERSION: "v1.2.0"
     # Enable vendoring support in Go 1.5 (can be removed when Circle updates to Go 1.6)
     GO15VENDOREXPERIMENT: 1
+
+checkout:
+  post:
+    - go get -d github.com/elastic/beats/filebeat
 
 # Don't test - that's done by Elastic
 test:
@@ -19,8 +21,8 @@ deployment:
   master:
     branch: master
     commands:
-      - cd $LOCAL_PATH && git checkout --quiet $FILEBEAT_VERSION
+      - cd $(go list -f '{{ .Dir }}' $BUILD_PATH) && git fetch && git checkout --quiet $FILEBEAT_VERSION
       - GOARCH=amd64 go build -o "${CIRCLE_ARTIFACTS}/${CIRCLE_PROJECT_REPONAME}_x86_64" "$BUILD_PATH"
       - GOARCH=arm GOARM=7 go build -o "${CIRCLE_ARTIFACTS}/${CIRCLE_PROJECT_REPONAME}_armv7l" "$BUILD_PATH"
       - GOARCH=arm GOARM=6 go build -o "${CIRCLE_ARTIFACTS}/${CIRCLE_PROJECT_REPONAME}_armv6l" "$BUILD_PATH"
-      - cd $LOCAL_PATH && git checkout --quiet master
+      - cd $(go list -f '{{ .Dir }}' $BUILD_PATH) && git checkout --quiet master
