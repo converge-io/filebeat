@@ -4,6 +4,7 @@ machine:
   environment:
     REPO_PATH: "github.com/elastic/beats"
     BUILD_PATH: "github.com/elastic/beats/filebeat"
+    OUTPUT_PATH: "${CIRCLE_ARTIFACTS}/${CIRCLE_PROJECT_REPONAME}"
     FILEBEAT_VERSION: "v1.2.0"
     # Enable vendoring support in Go 1.5 (can be removed when Circle updates to Go 1.6)
     GO15VENDOREXPERIMENT: 1
@@ -22,7 +23,10 @@ deployment:
     branch: master
     commands:
       - cd $(go list -f '{{ .Dir }}' $BUILD_PATH) && git fetch && git checkout --quiet $FILEBEAT_VERSION
-      - GOARCH=amd64 go build -o "${CIRCLE_ARTIFACTS}/${CIRCLE_PROJECT_REPONAME}_x86_64" "$BUILD_PATH"
-      - GOARCH=arm GOARM=7 go build -o "${CIRCLE_ARTIFACTS}/${CIRCLE_PROJECT_REPONAME}_armv7l" "$BUILD_PATH"
-      - GOARCH=arm GOARM=6 go build -o "${CIRCLE_ARTIFACTS}/${CIRCLE_PROJECT_REPONAME}_armv6l" "$BUILD_PATH"
+      - GOARCH=amd64 go build -o "${OUTPUT_PATH}_x86_64" "$BUILD_PATH"
+      - GOARCH=arm GOARM=7 go build -o "${OUTPUT_PATH}_armv7l" "$BUILD_PATH"
+      - GOARCH=arm GOARM=6 go build -o "${OUTPUT_PATH}_armv6l" "$BUILD_PATH"
+      - shasum -a 256 "${OUTPUT_PATH}_x86_64" > "${OUTPUT_PATH}_x86_64.shasum"
+      - shasum -a 256 "${OUTPUT_PATH}_armv7l" > "${OUTPUT_PATH}_armv7l.shasum"
+      - shasum -a 256 "${OUTPUT_PATH}_armv6l" > "${OUTPUT_PATH}_armv6l.shasum"
       - cd $(go list -f '{{ .Dir }}' $BUILD_PATH) && git checkout --quiet master
