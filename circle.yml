@@ -6,8 +6,6 @@ machine:
     BUILD_PATH: "github.com/elastic/beats/filebeat"
     OUTPUT_PATH: "${CIRCLE_ARTIFACTS}/${CIRCLE_PROJECT_REPONAME}"
     FILEBEAT_VERSION: "v1.2.0"
-    # Enable vendoring support in Go 1.5 (can be removed when Circle updates to Go 1.6)
-    GO15VENDOREXPERIMENT: 1
 
 checkout:
   post:
